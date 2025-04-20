@@ -1,13 +1,14 @@
+import manager.TaskManager;
+import tasks.*;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = new TaskManager();
 
-
-        Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW);
-        Task task2 = new Task("Покупка мебели", "Выбрать и купить диван", Status.NEW);
+        Task task1 = new Task("Переезд", "Собрать вещи");
+        Task task2 = new Task("Покупка мебели", "Выбрать и купить диван");
         manager.addTask(task1);
         manager.addTask(task2);
-
 
         Epic epic1 = new Epic("Организовать праздник", "Подготовка к мероприятию");
         manager.addEpic(epic1);
@@ -16,7 +17,6 @@ public class Main {
         Subtask sub2 = new Subtask("Заказать торт", "Позвонить в пекарню", Status.NEW, epic1.getId());
         manager.addSubtask(sub1);
         manager.addSubtask(sub2);
-
 
         Epic epic2 = new Epic("Купить квартиру", "Выбор и оформление");
         manager.addEpic(epic2);
@@ -32,7 +32,6 @@ public class Main {
         System.out.println("== Подзадачи ==");
         System.out.println(manager.getAllSubtasks());
 
-
         sub1.setStatus(Status.DONE);
         sub2.setStatus(Status.DONE);
         manager.updateSubtask(sub1);
@@ -40,7 +39,6 @@ public class Main {
 
         System.out.println("== Эпики после обновления статусов подзадач ==");
         System.out.println(manager.getEpicById(epic1.getId()));
-
 
         manager.deleteTaskById(task1.getId());
         manager.deleteEpicById(epic2.getId());
