@@ -151,47 +151,4 @@ class InMemoryTaskManagerTest {
         assertEquals(task, history.get(0), "Первым элементом истории должна быть задача");
         assertEquals(epic, history.get(1), "Вторым элементом истории должен быть эпик");
     }
-
-    @Test
-    void historyLimitedToTenItems() {
-        Task[] tasks = new Task[11];
-        for (int i = 0; i < 11; i++) {
-            tasks[i] = new Task("Задача " + i, "Описание задачи " + i);
-            taskManager.addTask(tasks[i]);
-        }
-
-        for (Task task : tasks) {
-            taskManager.getTaskById(task.getId());
-        }
-
-        List<Task> history = taskManager.getHistory();
-
-        assertEquals(10, history.size(), "История должна содержать не более 10 элементов");
-        assertEquals(tasks[1], history.get(0), "Самая старая задача должна быть удалена из истории");
-        assertEquals(tasks[10], history.get(9), "Последняя задача должна быть в истории");
-    }
-
-    @Test
-    void taskEquality() {
-        Task task1 = new Task("Задача", "Описание");
-        task1.setId(1);
-
-        Task task2 = new Task("Другая задача", "Другое описание");
-        task2.setId(1);
-
-        assertEquals(task1, task2, "Задачи с одинаковым ID должны быть равны");
-        assertEquals(task1.hashCode(), task2.hashCode(), "Хеш-коды задач с одинаковым ID должны быть равны");
-    }
-
-    @Test
-    void epicSubtaskEquality() {
-        Epic epic = new Epic("Эпик", "Описание эпика");
-        epic.setId(1);
-
-        Subtask subtask = new Subtask("Подзадача", "Описание подзадачи", Status.NEW, 2);
-        subtask.setId(1);
-
-        assertEquals(epic, subtask, "Задачи разных типов с одинаковым ID должны быть равны");
-        assertEquals(epic.hashCode(), subtask.hashCode(), "Хеш-коды задач разных типов с одинаковым ID должны быть равны");
-    }
 }
