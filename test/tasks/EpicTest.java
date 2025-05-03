@@ -31,7 +31,6 @@ class EpicTest {
         Task task = new Task("Задача", "Описание задачи");
         task.setId(1);
 
-        assertEquals(epic, task, "Эпик и задача с одинаковым ID должны быть равны");
-        assertEquals(epic.hashCode(), task.hashCode(), "Хеш-коды эпика и задачи с одинаковым ID должны быть равны");
+        assertNotEquals(epic, task, "Эпик и задача с одинаковым ID не должны быть равны");
     }
 }

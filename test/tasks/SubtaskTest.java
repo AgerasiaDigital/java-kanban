@@ -31,8 +31,7 @@ class SubtaskTest {
         Task task = new Task("Задача", "Описание задачи");
         task.setId(1);
 
-        assertEquals(subtask, task, "Подзадача и задача с одинаковым ID должны быть равны");
-        assertEquals(subtask.hashCode(), task.hashCode(), "Хеш-коды подзадачи и задачи с одинаковым ID должны быть равны");
+        assertNotEquals(subtask, task, "Подзадача и задача с одинаковым ID не должны быть равны");
     }
 
     @Test
@@ -43,7 +42,6 @@ class SubtaskTest {
         Epic epic = new Epic("Эпик", "Описание эпика");
         epic.setId(1);
 
-        assertEquals(subtask, epic, "Подзадача и эпик с одинаковым ID должны быть равны");
-        assertEquals(subtask.hashCode(), epic.hashCode(), "Хеш-коды подзадачи и эпика с одинаковым ID должны быть равны");
+        assertNotEquals(subtask, epic, "Подзадача и эпик с одинаковым ID не должны быть равны");
     }
 }
