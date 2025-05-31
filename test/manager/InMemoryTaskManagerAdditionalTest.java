@@ -39,6 +39,7 @@ class InMemoryTaskManagerAdditionalTest {
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
 
+        // Добавляем в историю
         taskManager.getEpicById(epic.getId());
         taskManager.getSubtaskById(subtask1.getId());
         taskManager.getSubtaskById(subtask2.getId());
@@ -159,16 +160,14 @@ class InMemoryTaskManagerAdditionalTest {
         taskManager.addTask(task2);
         taskManager.addEpic(epic);
 
-        taskManager.getTaskById(task1.getId());  // [task1]
-        taskManager.getTaskById(task2.getId());  // [task1, task2]
-        taskManager.getEpicById(epic.getId());   // [task1, task2, epic]
-        taskManager.getTaskById(task1.getId());  // [task2, epic, task1] - task1 переместился в конец
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+        taskManager.getEpicById(epic.getId());
+        taskManager.getTaskById(task1.getId());
 
         List<Task> history = taskManager.getHistory();
-        assertEquals(3, history.size(), "В истории должно быть 3 элемента");
-        assertEquals(task2, history.get(0), "task2 должна быть первой");
-        assertEquals(epic, history.get(1), "epic должен быть вторым");
-        assertEquals(task1, history.get(2), "task1 должна быть последней");
+        assertEquals(List.of(task2, epic, task1), history,
+                "История должна содержать [task2, epic, task1] после перемещения task1 в конец");
     }
 
     @Test
