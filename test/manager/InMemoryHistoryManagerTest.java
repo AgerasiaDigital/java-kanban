@@ -32,8 +32,7 @@ class InMemoryHistoryManagerTest {
         List<Task> history = historyManager.getHistory();
 
         assertNotNull(history, "История не должна быть null");
-        assertEquals(1, history.size(), "Размер истории должен быть 1");
-        assertEquals(task1, history.get(0), "Задача в истории должна соответствовать добавленной задаче");
+        assertEquals(List.of(task1), history, "История должна содержать одну задачу");
     }
 
     @Test
@@ -53,10 +52,7 @@ class InMemoryHistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(3, history.size(), "История должна содержать 3 элемента");
-        assertEquals(task1, history.get(0), "Первая задача должна быть в начале истории");
-        assertEquals(task2, history.get(1), "Вторая задача должна быть в середине истории");
-        assertEquals(task3, history.get(2), "Третья задача должна быть в конце истории");
+        assertEquals(List.of(task1, task2, task3), history, "История должна содержать задачи в порядке добавления");
     }
 
     @Test
@@ -69,10 +65,8 @@ class InMemoryHistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(3, history.size(), "История должна содержать 3 уникальные задачи");
-        assertEquals(task2, history.get(0), "task2 должна быть первой");
-        assertEquals(task3, history.get(1), "task3 должна быть второй");
-        assertEquals(task1, history.get(2), "task1 должна быть последней после повторного добавления");
+        assertEquals(List.of(task2, task3, task1), history,
+                "task1 должна переместиться в конец после повторного добавления");
     }
 
     @Test
@@ -85,10 +79,7 @@ class InMemoryHistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(2, history.size(), "История должна содержать 2 элемента после удаления");
-        assertEquals(task1, history.get(0), "task1 должна остаться первой");
-        assertEquals(task3, history.get(1), "task3 должна остаться второй");
-        assertFalse(history.contains(task2), "task2 не должна быть в истории");
+        assertEquals(List.of(task1, task3), history, "История должна содержать task1 и task3 после удаления task2");
     }
 
     @Test
@@ -101,9 +92,7 @@ class InMemoryHistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(2, history.size(), "История должна содержать 2 элемента");
-        assertEquals(task2, history.get(0), "task2 должна стать первой");
-        assertEquals(task3, history.get(1), "task3 должна остаться второй");
+        assertEquals(List.of(task2, task3), history, "История должна содержать task2 и task3 после удаления первой задачи");
     }
 
     @Test
@@ -116,9 +105,7 @@ class InMemoryHistoryManagerTest {
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(2, history.size(), "История должна содержать 2 элемента");
-        assertEquals(task1, history.get(0), "task1 должна остаться первой");
-        assertEquals(task2, history.get(1), "task2 должна остаться второй");
+        assertEquals(List.of(task1, task2), history, "История должна содержать task1 и task2 после удаления последней задачи");
     }
 
     @Test
@@ -126,13 +113,11 @@ class InMemoryHistoryManagerTest {
         historyManager.add(task1);
         historyManager.add(task2);
 
-        historyManager.remove(999);
+        historyManager.remove(999); // Несуществующий ID
 
         List<Task> history = historyManager.getHistory();
 
-        assertEquals(2, history.size(), "Размер истории не должен измениться");
-        assertEquals(task1, history.get(0), "task1 должна остаться на месте");
-        assertEquals(task2, history.get(1), "task2 должна остаться на месте");
+        assertEquals(List.of(task1, task2), history, "История не должна измениться при удалении несуществующей задачи");
     }
 
     @Test
@@ -186,30 +171,22 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void complexScenarioWithDuplicatesAndRemovals() {
-        historyManager.add(task1);
-        historyManager.add(task2);
-        historyManager.add(task3);
-        historyManager.add(task1);
+        historyManager.add(task1); // [1]
+        historyManager.add(task2); // [1, 2]
+        historyManager.add(task3); // [1, 2, 3]
+        historyManager.add(task1); // [2, 3, 1] - task1 переместилась в конец
 
-        List<Task> history = historyManager.getHistory();
-        assertEquals(3, history.size());
-        assertEquals(task2, history.get(0));
-        assertEquals(task3, history.get(1));
-        assertEquals(task1, history.get(2));
+        assertEquals(List.of(task2, task3, task1), historyManager.getHistory(),
+                "После добавления дубликата порядок должен быть [2, 3, 1]");
 
         historyManager.remove(task3.getId()); // [2, 1]
 
-        history = historyManager.getHistory();
-        assertEquals(2, history.size());
-        assertEquals(task2, history.get(0));
-        assertEquals(task1, history.get(1));
+        assertEquals(List.of(task2, task1), historyManager.getHistory(),
+                "После удаления task3 должны остаться [2, 1]");
 
         historyManager.add(task3); // [2, 1, 3]
 
-        history = historyManager.getHistory();
-        assertEquals(3, history.size());
-        assertEquals(task2, history.get(0));
-        assertEquals(task1, history.get(1));
-        assertEquals(task3, history.get(2));
+        assertEquals(List.of(task2, task1, task3), historyManager.getHistory(),
+                "После повторного добавления task3 порядок должен быть [2, 1, 3]");
     }
 }
