@@ -65,21 +65,17 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
-        // Удаляем из HashMap
         nodeMap.remove(node.task.getId());
 
-        // Обновляем связи в списке
         if (node.prev != null) {
             node.prev.next = node.next;
         } else {
-            // Удаляем первый элемент
             head = node.next;
         }
 
         if (node.next != null) {
             node.next.prev = node.prev;
         } else {
-            // Удаляем последний элемент
             tail = node.prev;
         }
     }
