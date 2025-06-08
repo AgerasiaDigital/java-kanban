@@ -36,7 +36,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(int id) {  // ✅ Правильная сигнатура метода
+    public void remove(int id) {
         removeNode(nodeMap.get(id));
     }
 
