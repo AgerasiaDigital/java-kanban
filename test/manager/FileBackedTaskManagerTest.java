@@ -21,18 +21,15 @@ class FileBackedTaskManagerTest {
     private File file;
     private FileBackedTaskManager manager;
 
-    // Тестовые данные - по одному каждого типа
     private Task task;
     private Epic epic;
     private Subtask subtask;
 
     @BeforeEach
     void setUp() throws IOException {
-        // Создаем временный файл и менеджер
         file = Files.createTempFile(tempDir, "test", ".csv").toFile();
         manager = new FileBackedTaskManager(file);
 
-        // Подготавливаем тестовые данные
         task = new Task("Тестовая задача", "Описание задачи");
         epic = new Epic("Тестовый эпик", "Описание эпика");
         subtask = new Subtask("Тестовая подзадача", "Описание подзадачи", Status.IN_PROGRESS, 0);
@@ -40,7 +37,6 @@ class FileBackedTaskManagerTest {
 
     @AfterEach
     void tearDown() {
-        // Удаляем файл после каждого теста
         if (file.exists()) {
             file.delete();
         }
@@ -48,7 +44,6 @@ class FileBackedTaskManagerTest {
 
     @Test
     void saveAndLoadEmptyManager() {
-        // Проверяем загрузку пустого менеджера
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
 
         assertTrue(loadedManager.getAllTasks().isEmpty(), "Список задач должен быть пустым");
@@ -58,24 +53,18 @@ class FileBackedTaskManagerTest {
 
     @Test
     void saveAndLoadFilledManager() {
-        // 1. Создать файловый менеджер
-        // 2. Заполнить задачами (по 1 каждого типа)
         manager.addTask(task);
         manager.addEpic(epic);
 
-        // Устанавливаем правильный epicId для подзадачи
         subtask.setEpicId(epic.getId());
         manager.addSubtask(subtask);
 
-        // 3. Создать файловый менеджер из этого же файла через loadFromFile()
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
 
-        // 4. Сравнить их списки задач/подзадач/эпиков (они должны быть идентичны)
         assertEquals(manager.getAllTasks().size(), loadedManager.getAllTasks().size(), "Количество задач должно совпадать");
         assertEquals(manager.getAllEpics().size(), loadedManager.getAllEpics().size(), "Количество эпиков должно совпадать");
         assertEquals(manager.getAllSubtasks().size(), loadedManager.getAllSubtasks().size(), "Количество подзадач должно совпадать");
 
-        // Проверяем, что конкретные задачи идентичны
         Task loadedTask = loadedManager.getTaskById(task.getId());
         Epic loadedEpic = loadedManager.getEpicById(epic.getId());
         Subtask loadedSubtask = loadedManager.getSubtaskById(subtask.getId());
@@ -91,13 +80,11 @@ class FileBackedTaskManagerTest {
         assertEquals(epic.getName(), loadedEpic.getName(), "Название эпика должно совпадать");
         assertEquals(subtask.getEpicId(), loadedSubtask.getEpicId(), "ID эпика у подзадачи должен совпадать");
 
-        // Проверяем связь эпик-подзадача
         assertTrue(loadedEpic.getSubtaskIds().contains(loadedSubtask.getId()), "Подзадача должна быть связана с эпиком");
     }
 
     @Test
     void loadFromNonExistentFile() {
-        // Проверяем загрузку из несуществующего файла
         File nonExistentFile = new File(tempDir.toFile(), "non_existent.csv");
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(nonExistentFile);
@@ -106,7 +93,6 @@ class FileBackedTaskManagerTest {
         assertTrue(loadedManager.getAllEpics().isEmpty(), "Список эпиков должен быть пустым");
         assertTrue(loadedManager.getAllSubtasks().isEmpty(), "Список подзадач должен быть пустым");
 
-        // Проверяем, что можно добавлять задачи в загруженный менеджер
         Task newTask = new Task("Новая задача", "Описание");
         loadedManager.addTask(newTask);
         assertEquals(1, newTask.getId(), "ID должен генерироваться правильно");
@@ -114,7 +100,6 @@ class FileBackedTaskManagerTest {
 
     @Test
     void saveExceptionHandling() {
-        // Проверяем обработку ошибок сохранения
         file.setReadOnly();
 
         assertThrows(ManagerSaveException.class, () -> {
@@ -122,11 +107,8 @@ class FileBackedTaskManagerTest {
         }, "Должно выбрасываться исключение ManagerSaveException при ошибке сохранения");
     }
 
-    // Опциональные тесты для удаления/обновления в файле
-
     @Test
     void updateTaskInFile() {
-        // Проверяем корректность обновления задач в файле
         manager.addTask(task);
 
         task.setName("Обновленная задача");
@@ -142,7 +124,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void deleteTaskFromFile() {
-        // Проверяем корректность удаления задач из файла
+
         manager.addTask(task);
         Epic epic2 = new Epic("Эпик 2", "Описание 2");
         manager.addEpic(epic2);
