@@ -7,6 +7,7 @@ public class Task {
     protected String description;
     protected int id;
     protected Status status;
+    protected TaskType type = TaskType.TASK; // Добавили поле type
 
     public Task(String name, String description) {
         this.name = name;
@@ -44,6 +45,10 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public TaskType getType() {
+        return type;
     }
 
     @Override
