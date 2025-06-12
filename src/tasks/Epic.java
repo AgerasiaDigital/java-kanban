@@ -7,10 +7,14 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description);
-        this.type = TaskType.EPIC;
     }
 
     public ArrayList<Integer> getSubtaskIds() {
         return subtaskIds;
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
     }
 }
