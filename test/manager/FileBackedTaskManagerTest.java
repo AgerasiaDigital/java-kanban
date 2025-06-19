@@ -51,7 +51,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void saveAndLoadFilledManager() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().withNano(0);
 
         Task task = new Task("Тестовая задача", "Описание задачи", Duration.ofHours(1), now);
         Epic epic = new Epic("Тестовый эпик", "Описание эпика");
