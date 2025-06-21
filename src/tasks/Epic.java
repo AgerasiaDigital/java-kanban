@@ -22,16 +22,6 @@ public class Epic extends Task {
     }
 
     @Override
-    public Duration getDuration() {
-        return duration;
-    }
-
-    @Override
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    @Override
     public LocalDateTime getEndTime() {
         return endTime;
     }
@@ -48,8 +38,8 @@ public class Epic extends Task {
             return;
         }
 
-        LocalDateTime earliestStart = null;
-        LocalDateTime latestEnd = null;
+        LocalDateTime earliestStart = LocalDateTime.MAX;
+        LocalDateTime latestEnd = LocalDateTime.MIN;
         Duration totalDuration = Duration.ZERO;
 
         for (Subtask subtask : subtasks) {
@@ -57,11 +47,11 @@ public class Epic extends Task {
                 LocalDateTime subtaskStart = subtask.getStartTime();
                 LocalDateTime subtaskEnd = subtask.getEndTime();
 
-                if (earliestStart == null || subtaskStart.isBefore(earliestStart)) {
+                if (subtaskStart.isBefore(earliestStart)) {
                     earliestStart = subtaskStart;
                 }
 
-                if (latestEnd == null || subtaskEnd.isAfter(latestEnd)) {
+                if (subtaskEnd.isAfter(latestEnd)) {
                     latestEnd = subtaskEnd;
                 }
 
@@ -69,8 +59,14 @@ public class Epic extends Task {
             }
         }
 
-        this.startTime = earliestStart;
-        this.endTime = latestEnd;
-        this.duration = totalDuration;
+        if (earliestStart.equals(LocalDateTime.MAX)) {
+            this.startTime = null;
+            this.endTime = null;
+            this.duration = null;
+        } else {
+            this.startTime = earliestStart;
+            this.endTime = latestEnd;
+            this.duration = totalDuration;
+        }
     }
 }
