@@ -10,8 +10,9 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
     protected final HashMap<Integer, Epic> epics = new HashMap<>();
     protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime,
-            Comparator.nullsLast(Comparator.naturalOrder())));
+    protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(
+            Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Task::getId));
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
@@ -99,7 +100,9 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(oldTask);
 
             if (checkTimeConflict(task)) {
-                prioritizedTasks.add(oldTask);
+                if (oldTask.getStartTime() != null) {
+                    prioritizedTasks.add(oldTask);
+                }
                 throw new IllegalArgumentException("Задача пересекается с существующими по времени");
             }
 
@@ -126,7 +129,9 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(oldSubtask);
 
             if (checkTimeConflict(subtask)) {
-                prioritizedTasks.add(oldSubtask);
+                if (oldSubtask.getStartTime() != null) {
+                    prioritizedTasks.add(oldSubtask);
+                }
                 throw new IllegalArgumentException("Подзадача пересекается с существующими по времени");
             }
 
@@ -263,7 +268,6 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
 
-        // Используем отсортированный список для O(n) поиска
         List<Task> sortedTasks = getPrioritizedTasks();
 
         for (Task existingTask : sortedTasks) {
