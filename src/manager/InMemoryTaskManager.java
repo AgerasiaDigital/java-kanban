@@ -229,7 +229,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getPrioritizedTasks() {
-        return new ArrayList<>(prioritizedTasks);
+        return prioritizedTasks.stream()
+                .filter(task -> task.getStartTime() != null)
+                .collect(Collectors.toList());
     }
 
     protected void updateEpicStatus(Epic epic) {
@@ -268,6 +270,7 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
 
+        // Используем отсортированный список для O(n) поиска
         List<Task> sortedTasks = getPrioritizedTasks();
 
         for (Task existingTask : sortedTasks) {
@@ -275,6 +278,7 @@ public class InMemoryTaskManager implements TaskManager {
                 continue;
             }
 
+            // Если текущая задача начинается после окончания новой - дальше проверять не нужно
             if (existingTask.getStartTime().isAfter(newTask.getEndTime()) ||
                     existingTask.getStartTime().equals(newTask.getEndTime())) {
                 break;
