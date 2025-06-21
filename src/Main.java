@@ -4,7 +4,7 @@ import tasks.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== ДЕМОНСТРАЦИЯ ОБНОВЛЕННОГО ТРЕКЕРА ЗАДАЧ (Sprint 6) ===\n");
+        System.out.println("=== ДЕМОНСТРАЦИЯ ОБНОВЛЕННОГО ТРЕКЕРА ЗАДАЧ (Sprint 8) ===\n");
 
         TaskManager manager = Managers.getDefault();
 
