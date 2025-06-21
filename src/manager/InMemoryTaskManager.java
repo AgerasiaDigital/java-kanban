@@ -22,9 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         task.setId(nextId++);
         tasks.put(task.getId(), task);
-        if (task.getStartTime() != null) {
-            prioritizedTasks.add(task);
-        }
+        prioritizedTasks.add(task);
     }
 
     @Override
@@ -46,9 +44,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(subtask.getId(), subtask);
         epic.getSubtaskIds().add(subtask.getId());
 
-        if (subtask.getStartTime() != null) {
-            prioritizedTasks.add(subtask);
-        }
+        prioritizedTasks.add(subtask);
 
         updateEpicStatus(epic);
         updateEpicTime(epic);
@@ -111,9 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
 
             tasks.put(task.getId(), task);
-            if (task.getStartTime() != null) {
-                prioritizedTasks.add(task);
-            }
+            prioritizedTasks.add(task);
         }
     }
 
@@ -142,9 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
 
             subtasks.put(subtask.getId(), subtask);
-            if (subtask.getStartTime() != null) {
-                prioritizedTasks.add(subtask);
-            }
+            prioritizedTasks.add(subtask);
 
             Epic epic = epics.get(subtask.getEpicId());
             if (epic != null) {
