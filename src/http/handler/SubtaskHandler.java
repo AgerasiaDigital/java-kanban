@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.NotFoundException;
 import manager.TaskManager;
+import tasks.Epic;
 import tasks.Subtask;
 
 import java.io.IOException;
@@ -61,9 +62,6 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                 try {
                     int subtaskId = Integer.parseInt(pathParts[2]);
                     Subtask subtask = taskManager.getSubtaskById(subtaskId);
-                    if (subtask == null) {
-                        throw new NotFoundException("Subtask not found");
-                    }
                     String subtaskJson = gson.toJson(subtask);
                     sendText(exchange, subtaskJson);
                 } catch (NumberFormatException e) {
@@ -83,7 +81,19 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
         Subtask subtask = gson.fromJson(body, Subtask.class);
 
+        // Проверяем существование эпика для новых подзадач
         if (subtask.getId() == 0) {
+            // Создание новой подзадачи - проверяем эпик
+            Epic epic = taskManager.getAllEpics().stream()
+                    .filter(e -> e.getId() == subtask.getEpicId())
+                    .findFirst()
+                    .orElse(null);
+
+            if (epic == null) {
+                sendNotFound(exchange); // 404 вместо 500
+                return;
+            }
+
             taskManager.addSubtask(subtask);
             sendCreated(exchange);
         } else {
@@ -98,6 +108,17 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
             if (pathParts.length == 3) {
                 try {
                     int subtaskId = Integer.parseInt(pathParts[2]);
+
+                    Subtask existingSubtask = taskManager.getAllSubtasks().stream()
+                            .filter(s -> s.getId() == subtaskId)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingSubtask == null) {
+                        sendNotFound(exchange);
+                        return;
+                    }
+
                     taskManager.deleteSubtaskById(subtaskId);
                     sendText(exchange, "");
                 } catch (NumberFormatException e) {

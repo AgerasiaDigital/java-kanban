@@ -61,9 +61,6 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                 try {
                     int taskId = Integer.parseInt(pathParts[2]);
                     Task task = taskManager.getTaskById(taskId);
-                    if (task == null) {
-                        throw new NotFoundException("Task not found");
-                    }
                     String taskJson = gson.toJson(task);
                     sendText(exchange, taskJson);
                 } catch (NumberFormatException e) {
@@ -98,6 +95,17 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             if (pathParts.length == 3) {
                 try {
                     int taskId = Integer.parseInt(pathParts[2]);
+
+                    Task existingTask = taskManager.getAllTasks().stream()
+                            .filter(t -> t.getId() == taskId)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingTask == null) {
+                        sendNotFound(exchange);
+                        return;
+                    }
+
                     taskManager.deleteTaskById(taskId);
                     sendText(exchange, "");
                 } catch (NumberFormatException e) {

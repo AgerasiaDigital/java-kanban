@@ -60,9 +60,6 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
                     Epic epic = taskManager.getEpicById(epicId);
-                    if (epic == null) {
-                        throw new NotFoundException("Epic not found");
-                    }
                     String epicJson = gson.toJson(epic);
                     sendText(exchange, epicJson);
                 } catch (NumberFormatException e) {
@@ -72,9 +69,6 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
                     Epic epic = taskManager.getEpicById(epicId);
-                    if (epic == null) {
-                        throw new NotFoundException("Epic not found");
-                    }
                     List<Subtask> epicSubtasks = taskManager.getSubtasksByEpicId(epicId);
                     String subtasksJson = gson.toJson(epicSubtasks);
                     sendText(exchange, subtasksJson);
@@ -104,6 +98,17 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             if (pathParts.length == 3) {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
+
+                    Epic existingEpic = taskManager.getAllEpics().stream()
+                            .filter(e -> e.getId() == epicId)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingEpic == null) {
+                        sendNotFound(exchange);
+                        return;
+                    }
+
                     taskManager.deleteEpicById(epicId);
                     sendText(exchange, "");
                 } catch (NumberFormatException e) {
