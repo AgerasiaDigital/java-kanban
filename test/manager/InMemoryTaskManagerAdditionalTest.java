@@ -39,7 +39,6 @@ class InMemoryTaskManagerAdditionalTest {
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
 
-        // Добавляем в историю
         taskManager.getEpicById(epic.getId());
         taskManager.getSubtaskById(subtask1.getId());
         taskManager.getSubtaskById(subtask2.getId());
@@ -49,8 +48,9 @@ class InMemoryTaskManagerAdditionalTest {
         taskManager.deleteEpicById(epic.getId());
 
         assertTrue(taskManager.getHistory().isEmpty(), "История должна быть пустой после удаления эпика");
-        assertNull(taskManager.getSubtaskById(subtask1.getId()), "Подзадача 1 должна быть удалена");
-        assertNull(taskManager.getSubtaskById(subtask2.getId()), "Подзадача 2 должна быть удалена");
+
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(subtask1.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(subtask2.getId()));
     }
 
     @Test
@@ -224,11 +224,11 @@ class InMemoryTaskManagerAdditionalTest {
     @Test
     void updateNonExistentTaskDoesNothing() {
         Task task = new Task("Задача", "Описание");
-        task.setId(999); // Несуществующий ID
+        task.setId(999);
 
         taskManager.updateTask(task);
 
-        assertNull(taskManager.getTaskById(999), "Задача не должна существовать");
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(999));
         assertTrue(taskManager.getAllTasks().isEmpty(), "Список задач должен быть пустым");
     }
 
@@ -242,7 +242,8 @@ class InMemoryTaskManagerAdditionalTest {
 
         taskManager.deleteTaskById(999);
 
-        assertNotNull(taskManager.getTaskById(task.getId()), "Существующая задача должна остаться");
+        Task existingTask = taskManager.getTaskById(task.getId());
+        assertNotNull(existingTask, "Существующая задача должна остаться");
         assertEquals(1, taskManager.getHistory().size(), "История не должна измениться");
     }
 }

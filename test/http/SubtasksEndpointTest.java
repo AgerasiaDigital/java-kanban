@@ -208,7 +208,7 @@ public class SubtasksEndpointTest {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(500, response.statusCode()); // Внутренняя ошибка, так как эпик не существует
+        assertEquals(404, response.statusCode()); // Эпик не найден
 
         assertTrue(manager.getAllSubtasks().isEmpty());
     }
