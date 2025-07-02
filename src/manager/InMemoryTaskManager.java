@@ -69,6 +69,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Subtask> getSubtasksByEpicId(int epicId) {
+        // Проверяем существование эпика
+        if (!epics.containsKey(epicId)) {
+            throw new NotFoundException("Эпик с ID " + epicId + " не найден");
+        }
+
         return subtasks.values().stream()
                 .filter(subtask -> subtask.getEpicId() == epicId)
                 .collect(Collectors.toList());

@@ -56,8 +56,7 @@ public class EpicHandler extends BaseHttpHandler {
             } else if (pathParts.length == 4 && pathParts[3].equals("subtasks")) {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
-                    // Проверяем существование эпика перед получением подзадач
-                    taskManager.getEpicById(epicId); // Выбросит NotFoundException если эпика нет
+                    // Логика проверки существования эпика теперь в TaskManager
                     List<Subtask> epicSubtasks = taskManager.getSubtasksByEpicId(epicId);
                     String subtasksJson = gson.toJson(epicSubtasks);
                     sendText(exchange, subtasksJson);
