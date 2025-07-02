@@ -125,7 +125,9 @@ public class SubtasksEndpointTest extends BaseHttpEndpointTest {
 
     @Test
     public void testSubtaskTimeConflict() throws IOException, InterruptedException {
-        manager.addSubtask(testSubtask);
+        Subtask subtask1 = new Subtask("Subtask 1", "Description", Status.NEW, testEpic.getId(),
+                Duration.ofHours(2), testStartTime);
+        manager.addSubtask(subtask1);
 
         Subtask conflictingSubtask = new Subtask("Conflicting Subtask", "Description",
                 Status.NEW, testEpic.getId(), Duration.ofHours(1), testStartTime.plusMinutes(30));
