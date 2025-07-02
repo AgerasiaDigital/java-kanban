@@ -2,8 +2,6 @@ package http.handler;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import manager.NotFoundException;
 import manager.TaskManager;
 import tasks.Task;
 
@@ -12,41 +10,29 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
+public class TaskHandler extends BaseHttpHandler {
 
     public TaskHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    protected void handleRequest(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        try {
-            switch (requestMethod) {
-                case "GET":
-                    handleGet(exchange, path);
-                    break;
-                case "POST":
-                    handlePost(exchange);
-                    break;
-                case "DELETE":
-                    handleDelete(exchange, path);
-                    break;
-                default:
-                    exchange.sendResponseHeaders(405, 0);
-                    exchange.close();
-            }
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
-        } catch (IllegalArgumentException e) {
-            sendHasInteractions(exchange);
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
+        switch (requestMethod) {
+            case "GET":
+                handleGet(exchange, path);
+                break;
+            case "POST":
+                handlePost(exchange);
+                break;
+            case "DELETE":
+                handleDelete(exchange, path);
+                break;
+            default:
+                sendResponse(exchange, 405, "");
         }
     }
 
@@ -82,11 +68,10 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
         if (task.getId() == 0) {
             taskManager.addTask(task);
-            sendCreated(exchange);
         } else {
             taskManager.updateTask(task);
-            sendCreated(exchange);
         }
+        sendCreated(exchange);
     }
 
     private void handleDelete(HttpExchange exchange, String path) throws IOException {
@@ -95,17 +80,6 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             if (pathParts.length == 3) {
                 try {
                     int taskId = Integer.parseInt(pathParts[2]);
-
-                    Task existingTask = taskManager.getAllTasks().stream()
-                            .filter(t -> t.getId() == taskId)
-                            .findFirst()
-                            .orElse(null);
-
-                    if (existingTask == null) {
-                        sendNotFound(exchange);
-                        return;
-                    }
-
                     taskManager.deleteTaskById(taskId);
                     sendText(exchange, "");
                 } catch (NumberFormatException e) {

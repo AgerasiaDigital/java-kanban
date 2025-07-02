@@ -2,8 +2,6 @@ package http.handler;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import manager.NotFoundException;
 import manager.TaskManager;
 import tasks.Epic;
 import tasks.Subtask;
@@ -13,39 +11,29 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
+public class EpicHandler extends BaseHttpHandler {
 
     public EpicHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    protected void handleRequest(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        try {
-            switch (requestMethod) {
-                case "GET":
-                    handleGet(exchange, path);
-                    break;
-                case "POST":
-                    handlePost(exchange);
-                    break;
-                case "DELETE":
-                    handleDelete(exchange, path);
-                    break;
-                default:
-                    exchange.sendResponseHeaders(405, 0);
-                    exchange.close();
-            }
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
+        switch (requestMethod) {
+            case "GET":
+                handleGet(exchange, path);
+                break;
+            case "POST":
+                handlePost(exchange);
+                break;
+            case "DELETE":
+                handleDelete(exchange, path);
+                break;
+            default:
+                sendResponse(exchange, 405, "");
         }
     }
 
@@ -68,7 +56,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             } else if (pathParts.length == 4 && pathParts[3].equals("subtasks")) {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
-                    Epic epic = taskManager.getEpicById(epicId);
+                    // Убираем лишний вызов getEpicById - просто получаем подзадачи
                     List<Subtask> epicSubtasks = taskManager.getSubtasksByEpicId(epicId);
                     String subtasksJson = gson.toJson(epicSubtasks);
                     sendText(exchange, subtasksJson);
@@ -98,17 +86,6 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             if (pathParts.length == 3) {
                 try {
                     int epicId = Integer.parseInt(pathParts[2]);
-
-                    Epic existingEpic = taskManager.getAllEpics().stream()
-                            .filter(e -> e.getId() == epicId)
-                            .findFirst()
-                            .orElse(null);
-
-                    if (existingEpic == null) {
-                        sendNotFound(exchange);
-                        return;
-                    }
-
                     taskManager.deleteEpicById(epicId);
                     sendText(exchange, "");
                 } catch (NumberFormatException e) {

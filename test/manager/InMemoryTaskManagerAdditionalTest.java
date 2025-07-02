@@ -215,7 +215,7 @@ class InMemoryTaskManagerAdditionalTest {
     void subtaskCannotBeAddedToNonExistentEpic() {
         Subtask subtask = new Subtask("Подзадача", "Описание", Status.NEW, 999); // Несуществующий эпик
 
-        taskManager.addSubtask(subtask);
+        assertThrows(NotFoundException.class, () -> taskManager.addSubtask(subtask));
 
         assertTrue(taskManager.getAllSubtasks().isEmpty(), "Подзадача не должна быть добавлена");
         assertEquals(0, subtask.getId(), "ID подзадачи не должен быть установлен");
