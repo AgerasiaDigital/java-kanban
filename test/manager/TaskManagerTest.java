@@ -137,7 +137,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.deleteTaskById(task.getId());
 
-        assertNull(taskManager.getTaskById(task.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(task.getId()));
         assertTrue(taskManager.getAllTasks().isEmpty());
     }
 
@@ -151,8 +151,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.deleteEpicById(epic.getId());
 
-        assertNull(taskManager.getEpicById(epic.getId()));
-        assertNull(taskManager.getSubtaskById(subtask.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getEpicById(epic.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(subtask.getId()));
         assertTrue(taskManager.getAllEpics().isEmpty());
         assertTrue(taskManager.getAllSubtasks().isEmpty());
     }
